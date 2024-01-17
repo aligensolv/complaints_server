@@ -19,3 +19,5 @@ export const smtp_port = process.env.SMTP_PORT
 export const smtp_user = process.env.SMTP_USER
 export const smtp_pass = process.env.SMTP_PASS
 export const smtp = process.env.SMTP_HOST
+
+export const jwt_key = process.env.JWT_KEY

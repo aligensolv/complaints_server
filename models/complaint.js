@@ -73,7 +73,12 @@ const complaintSchema = new mongoose.Schema({
             required: true
         }
 
-    }]
+    }],
+
+    ticket_number: {
+        type: String,
+        required: true
+    }
 })
 
 const ComplaintModel = mongoose.model('Complaint', complaintSchema)

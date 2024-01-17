@@ -6,6 +6,8 @@ import ComplaintRepository from "../repositories/Complaint.js";
 
 
 export const createComplaint = asyncWrapper(async (req,res) => {
+    console.log(req.body.attachments);
+
     let attachments = JSON.parse(req.body.attachments)
     for(let i = 0; i < req.files.length; i++) {
         attachments[i].filepath = static_files_host + req.files[i].path;
@@ -17,7 +19,7 @@ export const createComplaint = asyncWrapper(async (req,res) => {
     }
 
     let response = await ComplaintRepository.createComplaint(data)
-    return res.status(OK).json([])
+    return res.status(OK).json(response)
 })
 
 export const getAllComplaints = asyncWrapper(async (req,res) => {

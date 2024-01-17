@@ -3,6 +3,7 @@ import { port } from './configs.js'
 
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import ErrorHandlerMiddleware from './middlewares/error_handler.js'
 
 
 const app = express()
@@ -24,8 +25,23 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 import ComplaintsRoute from './routes/complaints_route.js'
 import TicketRoute from './routes/ticket_route.js'
+import ComplaintManagerRoute from './routes/complaint_manager_route.js'
+import { NOT_FOUND } from './constants/status_codes.js'
+import ValidateApiToken from './middlewares/validate_api_token.js'
+// app.use(ValidateApiToken)
+app.use('/api', ComplaintsRoute, TicketRoute, ComplaintManagerRoute)
 
-app.use('/api', ComplaintsRoute, TicketRoute)
+app.use(ErrorHandlerMiddleware)
+
+
+app.get('*', (req, res) => {
+    return res.status(NOT_FOUND).json({
+        error: '404 Not Found',
+        url: req.url,
+        status_code: NOT_FOUND
+    })
+})
+
 
 const main = async () => {
     try{

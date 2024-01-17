@@ -35,7 +35,8 @@ class ComplaintRepository{
                 country: data.country,
                 phone_number: data.phoneNumber,
                 email: data.email,
-                complaint_text: data.complainText,
+                complaint_text: data.complaintText,
+                ticket_number: data.ticketNumber,
                 created_at: moment().format('DD.MM.YY HH:mm'),
                 attachments: data.attachments.map(attachment => {
                     return {
