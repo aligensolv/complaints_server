@@ -44,7 +44,8 @@ class ComplaintRepository{
                         file_path: attachment.filepath,
                         file_name: attachment.filename
                     }
-                })
+                }),
+                ticket: data.ticket
             }
             let complaint = await ComplaintModel.create(parsed_data)
             console.log(complaint);
@@ -54,7 +55,16 @@ class ComplaintRepository{
 
     static getAllComplaints(){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let complaints = await ComplaintModel.find()
+            let complaints = await ComplaintModel.find().populate([
+                {
+                    path: 'ticket.publisher_identifier',
+                    ref: 'User'
+                },
+                {
+                    path: 'ticket.place',
+                    ref: 'Place'
+                }
+            ])
 
             return resolve(complaints)
         }))
@@ -64,7 +74,16 @@ class ComplaintRepository{
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
             let complaint = await ComplaintModel.findOne({
                 _id: id
-            })
+            }).populate([
+                {
+                    path: 'ticket.publisher_identifier',
+                    ref: 'User'
+                },
+                {
+                    path: 'ticket.place',
+                    ref: 'Place'
+                }
+            ])
 
             return resolve(complaint)
         }))
@@ -79,7 +98,9 @@ class ComplaintRepository{
             complaint.status = status
             sendAlertMail({
                 to: complaint.email,
-                message: message
+                text: message,
+                html: `<p>${message}</p>`,
+                subject: `Svar på saken ${complaint.ticket_number}`
             })
 
             await complaint.save()

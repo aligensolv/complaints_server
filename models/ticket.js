@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 
-const TicketSchema = new mongoose.Schema({
+export const TicketSchema = new mongoose.Schema({
     publisher_identifier:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -141,6 +141,16 @@ const TicketSchema = new mongoose.Schema({
     payment_date: {
         type: String,
         default: null
+    },
+
+    barcode_image:{
+        type: String,
+        required: true
+    },
+
+    serial_number: {
+        type: String,
+        required: true
     }
 })
 

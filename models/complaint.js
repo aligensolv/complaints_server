@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import { TicketSchema } from "./ticket.js"
 
 const complaintSchema = new mongoose.Schema({
     first_name:{
@@ -77,6 +78,11 @@ const complaintSchema = new mongoose.Schema({
 
     ticket_number: {
         type: String,
+        required: true
+    },
+
+    ticket: {
+        type: TicketSchema,
         required: true
     }
 })

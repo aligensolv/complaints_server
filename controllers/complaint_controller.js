@@ -13,9 +13,12 @@ export const createComplaint = asyncWrapper(async (req,res) => {
         attachments[i].filepath = static_files_host + req.files[i].path;
     }
 
+    let ticket = JSON.parse(req.body.ticket)
+
     let data = {
         ...req.body,
-        attachments: attachments
+        attachments: attachments,
+        ticket: ticket
     }
 
     let response = await ComplaintRepository.createComplaint(data)
