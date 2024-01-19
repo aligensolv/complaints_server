@@ -3,29 +3,24 @@ import promiseAsyncWrapper from "../middlewares/promise_async_wrapper.js"
 import ComplaintModel from "../models/complaint.js"
 import parseFileType from "../utils/parse_file.type.js";
 import sendAlertMail from "../utils/smtp_service.js";
-/*
-    [Object: null prototype] {
-  firstName: 'Ali',
-  lastName: 'Tarek',
-  address: 'N/A',
-  postalCode: '5310002',
-  cityTown: 'Alexandria',
-  country: 'BG',
-  phoneNumber: '01150421159',
-  email: 'alitarek99944@gmail.com',
-  complainText: 'fdfda',
-  attachments: '[object Object]'
-}
-
-filename: 'Lab2.pdf',
-      filetype: 'application/pdf',
-      fieldname: 'attachments[0]',
-      filepath: 'http://localhost:4000/public\\files\\complaints\\Lab2.pdf'
-*/
+import CustomError from "../interfaces/custom_error_class.js";
+import { NOT_AUTHORIZED } from "../constants/status_codes.js";
 
 class ComplaintRepository{
     static createComplaint(data){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
+            let existing_complaint_was_found = await ComplaintModel.findOne({
+                ticket_number: data.ticketNumber
+            })
+
+            console.log(existing_complaint_was_found);
+            console.log(data.ticketNumber);
+
+            if(existing_complaint_was_found){
+                let existing_complaint_error = new CustomError('There is already a Complaint for the specified ticket', NOT_AUTHORIZED)
+                return reject(existing_complaint_error)
+            }
+
             const parsed_data = {
                 first_name: data.firstName,
                 last_name: data.lastName,
