@@ -43,7 +43,13 @@ class ComplaintRepository{
                 ticket: data.ticket
             }
             let complaint = await ComplaintModel.create(parsed_data)
-            console.log(complaint);
+            
+            sendAlertMail({
+                subject: `Complaint recieved`,
+                text: `Complaint recieved with number ${data.ticketNumber} and pending`,
+                html: `<h3>Complaint recieved with number ${data.ticketNumber} and pending</h3>`,
+                to: data.email
+            })
             return resolve(true);
         }))
     }

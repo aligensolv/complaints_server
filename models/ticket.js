@@ -63,6 +63,44 @@ export const TicketSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+
+        extras_values: {
+            meter_receipt_number: {
+                type: String,
+                default: null
+            },
+            meter_number:{
+                type: String,
+                default: null
+            },
+            expiry_date: {
+                type: String,
+                default: null
+            },
+            paid_amount: {
+                type: String,
+                default: null
+            }
+        },
+
+        extras: {
+            meter_receipt_number: {
+                type: Boolean,
+                default: false
+            },
+            meter_number:{
+                type: Boolean,
+                default: false
+            },
+            expiry_date: {
+                type: Boolean,
+                default: false
+            },
+            paid_amount: {
+                type: Boolean,
+                default: false
+            }
+        },
     }],
 
     status:{
