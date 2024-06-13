@@ -24,12 +24,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 import ComplaintsRoute from './routes/complaints_route.js'
-import TicketRoute from './routes/ticket_route.js'
 import ComplaintManagerRoute from './routes/complaint_manager_route.js'
+import ClientRoute from './routes/client_route.js'
+
 import { NOT_FOUND } from './constants/status_codes.js'
 import ValidateApiToken from './middlewares/validate_api_token.js'
 // app.use(ValidateApiToken)
-app.use('/api', ComplaintsRoute, TicketRoute, ComplaintManagerRoute)
+app.use('/api', ComplaintsRoute, ComplaintManagerRoute, ClientRoute)
 
 app.use(ErrorHandlerMiddleware)
 
@@ -45,11 +46,7 @@ app.get('*', (req, res) => {
 
 const main = async () => {
     try{
-        let lib = await import('./utils/mongoose_connection.js')
-        if(await lib.default){
-            app.listen(port, () => console.log(`[server] listening on ${port}`))
-            // server.listen(socket_port, () => console.log(`server listening on ${host}:${socket_port}`)) 
-        }
+        app.listen(port, '0.0.0.0', () => console.log(`[server] listening on ${port}`))
     }catch(err){
         logger.error(err.message)
     }

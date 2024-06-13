@@ -5,25 +5,26 @@ import asyncWrapper from "../middlewares/async_wrapper.js";
 import ComplaintRepository from "../repositories/Complaint.js";
 
 
-export const createComplaint = asyncWrapper(async (req,res) => {
-    console.log(req.body.attachments);
-
-    let attachments = JSON.parse(req.body.attachments)
-    for(let i = 0; i < req.files.length; i++) {
-        attachments[i].filepath = static_files_host + req.files[i].path;
+export const createComplaint = asyncWrapper(
+    async (req,res) => {
+        const {
+            address, attachments, city, complaint_text, country, 
+            email, first_name, last_name, postal_code, phone_number, ticket_number
+        } = req.body
+    
+        const attachments_list = JSON.parse(attachments)
+        for(let i = 0; i < req.files.length; i++) {
+            attachments_list[i].filepath = static_files_host + req.files[i].path;
+        }
+    
+    
+        let response = await ComplaintRepository.createComplaint({
+            address, attachments: attachments_list, city, complaint_text, country, 
+            email, first_name, last_name, postal_code, phone_number, ticket_number
+        })
+        return res.status(OK).json(response)
     }
-
-    let ticket = JSON.parse(req.body.ticket)
-
-    let data = {
-        ...req.body,
-        attachments: attachments,
-        ticket: ticket
-    }
-
-    let response = await ComplaintRepository.createComplaint(data)
-    return res.status(OK).json(response)
-})
+)
 
 export const getAllComplaints = asyncWrapper(async (req,res) => {
     let complaints = await ComplaintRepository.getAllComplaints()
@@ -37,7 +38,7 @@ export const getComplaint = asyncWrapper(async (req,res) => {
     return res.status(OK).json(complaint)
 })
 
-export const perfomActionOnComplaint = asyncWrapper(async (req,res) => {
+export const performActionOnComplaint = asyncWrapper(async (req,res) => {
     const {id} = req.params
     const {message,status} = req.body
 

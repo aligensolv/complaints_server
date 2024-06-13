@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createComplaint, deleteComplaint, getAllComplaints, getComplaint, getComplaintsCount, perfomActionOnComplaint } from "../controllers/complaint_controller.js"
+import { createComplaint, deleteComplaint, getAllComplaints, getComplaint, getComplaintsCount, performActionOnComplaint as performActionOnComplaint } from "../controllers/complaint_controller.js"
 
 import multer from 'multer'
 
@@ -31,7 +31,7 @@ router.get('/complaints/pending/count', getComplaintsCount)
 router.get('/complaints/rejected/count', getComplaintsCount)
 router.get('/complaints/completed/count', getComplaintsCount)
 router.get('/complaints/:id', getComplaint)
-router.post('/complaints/:id/action', perfomActionOnComplaint)
+router.post('/complaints/:id/action', performActionOnComplaint)
 router.delete('/complaints/:id', deleteComplaint)
 
 export default router

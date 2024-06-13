@@ -1,11 +1,11 @@
 import { BAD_REQUEST, NOT_AUTHORIZED } from "../constants/status_codes.js"
 
-import { jwt_key } from "../configs.js"
 import jwt from 'jsonwebtoken'
 import CustomError from "../interfaces/custom_error_class.js"
-import asyncWrapepr from "./async_wrapper.js"
+import asyncWrapper from "./async_wrapper.js"
+import Auth from "../repositories/Auth.js"
 
-const ValidateApiToken = asyncWrapepr(async (req, res, next) =>{
+const ValidateApiToken = asyncWrapper(async (req, res, next) =>{
     const { token } = req.headers
 
     if(!token){
@@ -13,16 +13,12 @@ const ValidateApiToken = asyncWrapepr(async (req, res, next) =>{
         return next(missing_token_error)
     }
     
-    let decoded_token = undefined
-
-    jwt.verify(token, jwt_key,{},(error,decoded) =>{
-        if(error){
-            let not_authorized_error = new CustomError('Invalid API token, Unauthorized',NOT_AUTHORIZED)
-            return next(not_authorized_error)
-        }
-
-        decoded_token = decoded
-    })
+    try{
+        await Auth.verifyToken(token)
+    }catch(error){
+        let not_authorized_error = new CustomError('Invalid API token, Unauthorized',NOT_AUTHORIZED)
+        return next(not_authorized_error)
+    }
     
     return next()
 })

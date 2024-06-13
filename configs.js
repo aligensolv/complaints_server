@@ -20,4 +20,6 @@ export const smtp_user = process.env.SMTP_USER
 export const smtp_pass = process.env.SMTP_PASS
 export const smtp = process.env.SMTP_HOST
 
-export const jwt_key = process.env.JWT_KEY
+export const jwt_secret_key = process.env.JWT_SECRET_KEY
+
+export const sjekk_api_url = process.env.SJEKK_API_URL

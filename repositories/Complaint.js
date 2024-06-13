@@ -1,71 +1,66 @@
 import moment from "moment";
 import promiseAsyncWrapper from "../middlewares/promise_async_wrapper.js"
-import ComplaintModel from "../models/complaint.js"
 import parseFileType from "../utils/parse_file.type.js";
-import sendAlertMail from "../utils/smtp_service.js";
 import CustomError from "../interfaces/custom_error_class.js";
 import { NOT_AUTHORIZED } from "../constants/status_codes.js";
+import PrismaClientService from "../utils/prisma_client.js";
+import EmailRepository from "./Email.js";
+import DateRepository from "./Date.js";
 
 class ComplaintRepository{
-    static createComplaint(data){
+    static prisma = PrismaClientService.instance
+
+    static createComplaint({
+        address, attachments, city, complaint_text, country, 
+        email, first_name, last_name, postal_code, phone_number, ticket_number
+    }){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let existing_complaint_was_found = await ComplaintModel.findOne({
-                ticket_number: data.ticketNumber
+            const complaint = await this.prisma.complaint.create({
+                data: {
+                    first_name: first_name,
+                    last_name: last_name,
+                    address: address,
+                    postal_code: postal_code,
+                    city: city,
+                    country: country,
+                    phone_number: phone_number,
+                    email: email,
+                    complaint_text: complaint_text,
+                    ticket_number: ticket_number,
+                    created_at: DateRepository.getCurrentDateTime()
+                }
             })
 
-            console.log(existing_complaint_was_found);
-            console.log(data.ticketNumber);
-
-            if(existing_complaint_was_found){
-                let existing_complaint_error = new CustomError('There is already a Complaint for the specified ticket', NOT_AUTHORIZED)
-                return reject(existing_complaint_error)
-            }
-
-            const parsed_data = {
-                first_name: data.firstName,
-                last_name: data.lastName,
-                address: data.address,
-                postal_code: data.postalCode,
-                city: data.cityTown,
-                country: data.country,
-                phone_number: data.phoneNumber,
-                email: data.email,
-                complaint_text: data.complaintText,
-                ticket_number: data.ticketNumber,
-                created_at: moment().format('DD.MM.YY HH:mm'),
-                attachments: data.attachments.map(attachment => {
+            await this.prisma.complaintAttachments.createMany({
+                data: attachments.map(attachment => {
                     return {
                         file_type: parseFileType(attachment.filetype),
                         file_path: attachment.filepath,
-                        file_name: attachment.filename
+                        file_name: attachment.filename,
+                        complaint_id: complaint.id
                     }
-                }),
-                ticket: data.ticket
-            }
-            let complaint = await ComplaintModel.create(parsed_data)
-            
-            sendAlertMail({
-                subject: `Complaint recieved`,
-                text: `Complaint recieved with number ${data.ticketNumber} and pending`,
-                html: `<h3>Complaint recieved with number ${data.ticketNumber} and pending</h3>`,
-                to: data.email
+                })
             })
-            return resolve(true);
+            
+
+            await EmailRepository.sendMail({
+                subject: `Complaint recieved`,
+                to: email,
+                text: `Complaint recieved with number ${ticket_number} and pending`,
+                html: `<h3>Complaint recieved with number ${ticket_number} and pending</h3>`
+            })
+            
+            return resolve(complaint);
         }))
     }
 
     static getAllComplaints(){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let complaints = await ComplaintModel.find().populate([
-                {
-                    path: 'ticket.publisher_identifier',
-                    ref: 'User'
-                },
-                {
-                    path: 'ticket.place',
-                    ref: 'Place'
+            const complaints = await this.prisma.complaint.findMany({
+                include: {
+                    attachments: true
                 }
-            ])
+            })
 
             return resolve(complaints)
         }))
@@ -73,18 +68,14 @@ class ComplaintRepository{
 
     static getComplaint(id){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let complaint = await ComplaintModel.findOne({
-                _id: id
-            }).populate([
-                {
-                    path: 'ticket.publisher_identifier',
-                    ref: 'User'
+            const complaint = await this.prisma.complaint.findUnique({
+                where: {
+                    id: +id
                 },
-                {
-                    path: 'ticket.place',
-                    ref: 'Place'
+                include: {
+                    attachments: true
                 }
-            ])
+            })
 
             return resolve(complaint)
         }))
@@ -92,19 +83,21 @@ class ComplaintRepository{
 
     static perfomActionOnComplaint(id,message,status){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let complaint = await ComplaintModel.findOne({
-                _id: id
+            await this.prisma.complaint.update({
+                where: {
+                    id: +id
+                },
+                data: {
+                    status: status
+                }
             })
 
-            complaint.status = status
-            sendAlertMail({
+            await EmailRepository.sendMail({
+                subject: `Svar på saken ${complaint.ticket_number}`,
                 to: complaint.email,
                 text: message,
-                html: `<p>${message}</p>`,
-                subject: `Svar på saken ${complaint.ticket_number}`
+                html: `<p>${message}</p>`
             })
-
-            await complaint.save()
 
             return resolve(true)
         }))
@@ -112,17 +105,18 @@ class ComplaintRepository{
 
     static deleteComplaint(id){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let result = await ComplaintModel.deleteOne({
-                _id: id
+            await this.prisma.complaint.delete({
+                where: {
+                    id: +id
+                }
             })
-
-            return resolve(result.deletedCount == 1)
+            return resolve(true)
         }))
     }
 
     static getComplaintsCount(){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            let count = await ComplaintModel.countDocuments()
+            const count = await this.prisma.complaint.count()
             return resolve(count)
         }))
     }

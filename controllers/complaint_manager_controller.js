@@ -1,10 +1,9 @@
-import { jwt_key } from '../configs.js'
 import { BAD_REQUEST, OK } from '../constants/status_codes.js'
 import CustomError from '../interfaces/custom_error_class.js'
 import asyncWrapper from '../middlewares/async_wrapper.js'
-import ComplaintManagerRepository from '../repositories/ComplaintManager.js'
+import ManagerRepository from '../repositories/Manager.js'
 
-import jwt from 'jsonwebtoken'
+import ValidatorRepository from '../repositories/Validator.js'
 
 export const registerComplaintManager = asyncWrapper(async (req,res, next) => {
     const {username,password} = req.body
@@ -18,7 +17,7 @@ export const registerComplaintManager = asyncWrapper(async (req,res, next) => {
         return next(no_password_provided)
     }
 
-    let response = await ComplaintManagerRepository.registerComplaintManager({
+    let response = await ManagerRepository.registerComplaintManager({
         username: username,
         password: password,
         rules: []
@@ -33,31 +32,18 @@ export const registerComplaintManager = asyncWrapper(async (req,res, next) => {
 export const loginComplaintManager = asyncWrapper(async (req,res,next) => {
     const {username,password} = req.body
 
-    if(!username || username?.length == 0){
-        let no_username_provided = new CustomError('No username provided', BAD_REQUEST)
-        return next(no_username_provided)
-    }
+    await ValidatorRepository.validateNotNull({
+        username, password
+    })
 
-    if(!password || password?.length == 0){
-        let no_password_provided = new CustomError('No password provided', BAD_REQUEST)
-        return next(no_password_provided)
-    }
-
-    let response = await ComplaintManagerRepository.loginComplaintManager({
+    let response = await ManagerRepository.loginComplaintManager({
         username: username,
         password: password
     })
 
-    let token = jwt.sign({
-        id: response._id,
-        username: username,
-        role: response.role
-    },jwt_key)
+    
 
-    return res.status(OK).json({
-        manager: response,
-        token: token
-    })
+    return res.status(OK).json(response)
 })
 
 export const addPermissionToComplaintManager = asyncWrapper(async (req,res) => {
