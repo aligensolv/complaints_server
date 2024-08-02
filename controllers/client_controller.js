@@ -30,7 +30,7 @@ export const loginClientToTicket = asyncWrapper(
             return next(ticket_number_mismatch)
         }
     
-        if(searched_violation.data.plate_info.plate_number.replace(/ /g, '').toLowerCase() != plate_number.toLowerCase()){
+        if(searched_violation.data.plate_info.plate_number.toUpperCase().trim() != plate_number.toUpperCase().trim()){
             const plate_number_mismatch = new CustomError('Plate number mismatch', BAD_REQUEST)
             return next(plate_number_mismatch)
         }

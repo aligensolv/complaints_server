@@ -11,8 +11,6 @@ class ManagerRepository{
     static registerComplaintManager({
         username,
         password,
-        rules,
-
     }){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) => {
             let hashedPassword = await bcrypt.hash(password,10)
@@ -22,7 +20,6 @@ class ManagerRepository{
                 data: {
                     username: username,
                     password: hashedPassword,
-                    rules: rules,
                     role: 'superuser',
                     created_at: DateRepository.getCurrentDateTime()
                 }

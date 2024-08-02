@@ -19,8 +19,7 @@ export const registerComplaintManager = asyncWrapper(async (req,res, next) => {
 
     let response = await ManagerRepository.registerComplaintManager({
         username: username,
-        password: password,
-        rules: []
+        password: password
     })
 
     return res.status(OK).json({
