@@ -33,5 +33,4 @@ router.get('/complaints/completed/count', getComplaintsCount)
 router.get('/complaints/:id', getComplaint)
 router.post('/complaints/:id/action', performActionOnComplaint)
 router.delete('/complaints/:id', deleteComplaint)
-
 export default router
