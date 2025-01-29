@@ -15,6 +15,8 @@ export const createComplaint = asyncWrapper(
         const attachments_list = JSON.parse(attachments)
         for(let i = 0; i < req.files.length; i++) {
             attachments_list[i].filepath = static_files_host + req.files[i].path;
+            attachments_list[i].filename = req.files[i].originalname
+            attachments_list[i].filetype = req.files[i].mimetype
         }
     
     
