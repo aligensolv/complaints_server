@@ -34,6 +34,11 @@ export const loginClientToTicket = asyncWrapper(
             const plate_number_mismatch = new CustomError('Plate number mismatch', BAD_REQUEST)
             return next(plate_number_mismatch)
         }
+
+        if(searched_violation.payment?.status == 'completed'){
+            const ticket_already_paid = new CustomError('Ticket already paid', BAD_REQUEST)
+            return next(ticket_already_paid)
+        }
     
     
         return res.status(OK).json(searched_violation.data)
