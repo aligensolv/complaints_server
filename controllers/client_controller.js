@@ -36,7 +36,7 @@ export const loginClientToTicket = asyncWrapper(
         }
 
         if(searched_violation.data.payment?.status == 'completed'){
-            const ticket_already_paid = new CustomError('Ticket already paid', BAD_REQUEST)
+            const ticket_already_paid = new CustomError('Ticket already paid and closed', BAD_REQUEST)
             return next(ticket_already_paid)
         }
     
