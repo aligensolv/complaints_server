@@ -23,7 +23,8 @@ export const createComplaint = asyncWrapper(
         let response = await ComplaintRepository.createComplaint({
             address, attachments: attachments_list, city, complaint_text, country, 
             email, first_name, last_name, postal_code, phone_number, ticket_number
-        })
+        })     
+           
         return res.status(OK).json(response)
     }
 )
