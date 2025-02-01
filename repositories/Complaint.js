@@ -103,15 +103,24 @@ class ComplaintRepository{
         }))
     }
 
-    static deleteComplaint(id){
-        return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            await this.prisma.complaint.delete({
-                where: {
-                    id: +id
-                }
-            })
-            return resolve(true)
-        }))
+    static deleteComplaint(id) {
+        return new Promise(promiseAsyncWrapper(async (resolve, reject) => {
+            await this.prisma.$transaction(async (prisma) => {
+                await prisma.complaintAttachments.deleteMany({
+                    where: {
+                        complaint_id: +id
+                    }
+                });
+
+                await prisma.complaint.delete({
+                    where: {
+                        id: +id
+                    }
+                });
+            });
+            return resolve(true);
+        }));
+
     }
 
     static getComplaintsCount(){
