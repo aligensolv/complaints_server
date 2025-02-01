@@ -83,7 +83,7 @@ class ComplaintRepository{
 
     static perfomActionOnComplaint(id,message,status){
         return new Promise(promiseAsyncWrapper(async (resolve, reject) =>{
-            await this.prisma.complaint.update({
+            const complaint = await this.prisma.complaint.update({
                 where: {
                     id: +id
                 },
